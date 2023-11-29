@@ -1,11 +1,16 @@
-const express = require('express')
-const app = express()
-const port = 3000
+import cors from 'cors';
+import express, { Application, Request, Response } from 'express';
 
-app.get('/', (req, res) => {
-    res.send('Hello World!')
-})
+const app: Application = express();
 
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
-})
+
+app.use(express.json());
+app.use(cors());
+
+const getAController = (req: Request, res: Response) => {
+    res.send('standard server');
+};
+
+app.get('/', getAController);
+
+export default app;
