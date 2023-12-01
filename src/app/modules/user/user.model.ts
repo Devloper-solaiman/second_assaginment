@@ -1,10 +1,10 @@
 import { Schema, model } from 'mongoose';
-import { Name, user, userAddress, userOrders } from './user/user.interface';
-
+import { Name, user, userAddress, userOrders } from './user.interface';
+import validator from 'validator';
 const fullNameSchema = new Schema<Name>({
   firstName: {
     type: String,
-    required: true,
+    required: [true, 'first Name is requerd'],
     trim: true,
     minlength: [5, '{VALUE} is not valid minimum 5 characters longar '],
     maxlength: [15, '{VALUE} is not valid maximum 15 characters longar'],
@@ -13,45 +13,30 @@ const fullNameSchema = new Schema<Name>({
         const firstNameStr = value.charAt(0).toUpperCase() + value.slice(1);
         return firstNameStr === value;
       },
-      message:
-        '{VALUE} is not valid, First Letter uppercase an all leater Lower case',
+      message: '{VALUE} is not capotalized formate',
     },
   },
   lastName: {
     type: String,
-    required: true,
+    required: [true, 'Last Name is required'],
+    validate: {
+      validator: (value: string) => validator.isAlpha(value),
+      message: '{VALUE} is not valid',
+    },
   },
 });
 
 const userOrdersSchema = new Schema<userOrders>([
   {
-    productName: {
-      type: String,
-      required: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-    },
-    quantity: {
-      type: Number,
-      required: true,
-    },
+    productName: { type: String, required: true },
+    price: { type: Number, required: true },
+    quantity: { type: Number, required: true },
   },
 ]);
 const userAddressSchema = new Schema<userAddress>({
-  street: {
-    type: String,
-    required: true,
-  },
-  city: {
-    type: String,
-    required: true,
-  },
-  country: {
-    type: String,
-    required: true,
-  },
+  street: { type: String, required: true },
+  city: { type: String, required: true },
+  country: { type: String, required: true },
 });
 
 const userSchema = new Schema<user>({
@@ -76,6 +61,10 @@ const userSchema = new Schema<user>({
     type: String,
     required: true,
     unique: true,
+    validate: {
+      validator: (value: string) => validator.isEmail(value),
+      message: '{VALUE} is not email',
+    },
   },
   isActive: {
     type: String,

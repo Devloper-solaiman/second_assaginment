@@ -16,7 +16,6 @@ export type userAddress = {
   city: string;
   country: string;
 };
-export type userHobbies = string[];
 
 export type user = {
   userId: number;
@@ -26,7 +25,7 @@ export type user = {
   age: number;
   email: string;
   isActive: 'active' | 'blocked';
-  hobbies: userHobbies;
+  hobbies: string[];
   address: userAddress;
   orders: userOrders;
 };
