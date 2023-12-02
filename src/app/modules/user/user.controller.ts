@@ -1,10 +1,20 @@
 import { Request, Response } from 'express';
 import { usersServices } from './user.service';
+import userJoiSchema from './userJOiValidator';
 
 const createAUsers = async (req: Request, res: Response) => {
   try {
     const { user: users } = req.body;
+    const { error } = userJoiSchema.validate(users);
     const result = await usersServices.createUserFromDB(users);
+
+    if (error) {
+      res.status(500).json({
+        success: false,
+        message: 'users failed to create',
+        data: error,
+      });
+    }
     res.status(200).json({
       success: true,
       message: 'users created successfully',
