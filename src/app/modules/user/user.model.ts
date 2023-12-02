@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { Name, user, userAddress, userOrders } from './user.interface';
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcrypt';
 import config from '../../config';
 
 const fullNameSchema = new Schema<Name>({
@@ -70,12 +70,15 @@ const userSchema = new Schema<user>({
 });
 
 userSchema.pre('save', async function (next) {
-  this.password = await bcrypt.hash(this.password, Number(config.bcrypt_salt_round))
-  next()
-})
+  this.password = await bcrypt.hash(
+    this.password,
+    Number(config.bcrypt_salt_round),
+  );
+  next();
+});
 userSchema.post('save', function (doc, next) {
-  doc.password = ''
-  next()
-})
+  doc.password = '';
+  next();
+});
 
 export const userModel = model<user>('user', userSchema);
