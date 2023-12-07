@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-const nameSchema = Joi.object({
+const nameValidationSchema = Joi.object({
   firstName: Joi.string()
     .required()
     .trim()
@@ -16,29 +16,30 @@ const nameSchema = Joi.object({
     .message('{#label} must only contain alphabetic characters'),
 });
 
-const orderSchema = Joi.object({
+export const orderValidationSchema = Joi.object({
   productName: Joi.string().required(),
   price: Joi.number().required(),
   quantity: Joi.number().required(),
 });
 
-const addressSchema = Joi.object({
+const addressValidationSchema = Joi.object({
   street: Joi.string().required(),
   city: Joi.string().required(),
   country: Joi.string().required(),
 });
 
-const userJoiSchema = Joi.object({
+const userJoiValidationSchema = Joi.object({
   userId: Joi.number().required(),
   username: Joi.string().required(),
   password: Joi.string().required(),
-  fullName: nameSchema.required(),
+  fullName: nameValidationSchema.required(),
   age: Joi.number().required(),
   email: Joi.string().email().required(),
   isActive: Joi.string().valid('active', 'blocked').default('active'),
+  isDeleted: Joi.boolean().default(false),
   hobbies: Joi.array().items(Joi.string().required()).required(),
-  address: addressSchema.required(),
-  orders: Joi.array().items(orderSchema.required()).required(),
+  address: addressValidationSchema.required(),
+  orders: Joi.array().items(orderValidationSchema.required()).optional(),
 });
 
-export default userJoiSchema;
+export default userJoiValidationSchema;

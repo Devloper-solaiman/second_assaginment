@@ -3,18 +3,15 @@ export type Name = {
   lastName: string;
 };
 
-export type userOrders = [
-  {
-    productName: string;
-    price: number;
-    quantity: number;
-  },
-];
-
-export type userAddress = {
+export type UserAddress = {
   street: string;
   city: string;
   country: string;
+};
+export type userOrders = {
+  productName: string;
+  price: number;
+  quantity: number;
 };
 
 export type user = {
@@ -25,7 +22,8 @@ export type user = {
   age: number;
   email: string;
   isActive: 'active' | 'blocked';
+  isDeleted: boolean;
   hobbies: string[];
-  address: userAddress;
-  orders: userOrders;
+  address: UserAddress;
+  orders?: userOrders;
 };

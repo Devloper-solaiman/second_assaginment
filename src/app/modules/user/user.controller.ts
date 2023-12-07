@@ -1,15 +1,17 @@
 import { Request, Response } from 'express';
 import { usersServices } from './user.service';
-import userJoiSchema from './userJOiValidator';
+import userJoiValidationSchema, {
+  orderValidationSchema,
+} from './userJOiValidator';
 
 const createAUsers = async (req: Request, res: Response) => {
   try {
     const { user: users } = req.body;
-    const { error } = userJoiSchema.validate(users);
+    const { error } = userJoiValidationSchema.validate(users);
     const result = await usersServices.createUserFromDB(users);
 
     if (error) {
-      res.status(500).json({
+      res.status(204).json({
         success: false,
         message: 'users failed to create',
         data: error,
@@ -65,7 +67,7 @@ const getSingleUser = async (req: Request, res: Response) => {
 
 const updatedUsers = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const userId = req.params.userId;
     const result = await usersServices.updateUsersfromDB(userId);
     res.status(200).json({
       success: true,
@@ -80,6 +82,79 @@ const updatedUsers = async (req: Request, res: Response) => {
     });
   }
 };
+const createUserOrders = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const { user: users } = req.body;
+    const { error } = orderValidationSchema.validate(users);
+    const result = await usersServices.createOrdersfromDB(userId, users);
+    if (error) {
+      res.status(204).json({
+        success: false,
+        message: 'created failed order',
+        data: error,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'create orders successfully',
+      data: result,
+    });
+  } catch (error) {
+    res.status(200).json({
+      success: false,
+      message: 'orders not created successfully',
+      data: error,
+    });
+  }
+};
+
+const getAllOrdersByUserId = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const orderUser = await usersServices.getSingleUserFromDB(userId);
+    if (!orderUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'user is not found',
+      });
+    }
+    const result = await usersServices.getOdersByIdfromDB(userId);
+    res.status(200).json({
+      success: true,
+      message: 'user All Orders successfully geted',
+      data: result,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: 'user Order not found',
+      data: err,
+    });
+  }
+};
+
+const getUserTotalPrice = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const result = await usersServices.getTotalPricefromDB(userId);
+    res.status(200).json({
+      success: true,
+      message: 'Total price geted',
+      data: {
+        totalPrice: result[0]?.totalPrice || 0,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'total price not worked',
+      data: error,
+    });
+  }
+};
+
 const deletdeUsers = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
@@ -103,5 +178,8 @@ export const UsersControllers = {
   getAllUsers,
   getSingleUser,
   updatedUsers,
+  createUserOrders,
+  getAllOrdersByUserId,
+  getUserTotalPrice,
   deletdeUsers,
 };

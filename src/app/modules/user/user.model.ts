@@ -1,30 +1,33 @@
 import { Schema, model } from 'mongoose';
-import { Name, user, userAddress, userOrders } from './user.interface';
+import { Name, user, UserAddress, userOrders } from './user.interface';
 import bcrypt from 'bcrypt';
 import config from '../../config';
 
-const fullNameSchema = new Schema<Name>({
-  firstName: {
-    type: String,
-  },
-  lastName: {
-    type: String,
-  },
-});
-
-const userOrdersSchema = new Schema<userOrders>([
+const fullNameSchema = new Schema<Name>(
   {
-    productName: { type: String },
-    price: { type: Number },
-    quantity: { type: Number },
+    firstName: {
+      type: String,
+    },
+    lastName: {
+      type: String,
+    },
   },
-]);
-const userAddressSchema = new Schema<userAddress>({
-  street: { type: String },
-  city: { type: String },
-  country: { type: String },
-});
+  { _id: false },
+);
 
+const userAddressSchema = new Schema<UserAddress>(
+  {
+    street: { type: String },
+    city: { type: String },
+    country: { type: String },
+  },
+  { _id: false },
+);
+const userOrdersSchema = new Schema<userOrders>({
+  productName: { type: String, required: true },
+  price: { type: Number, required: true },
+  quantity: { type: Number, required: true },
+});
 const userSchema = new Schema<user>({
   userId: { type: Number },
   username: {
@@ -45,11 +48,16 @@ const userSchema = new Schema<user>({
   },
   email: {
     type: String,
+    required: true,
   },
   isActive: {
     type: String,
     enum: ['active', 'blocked'],
     default: 'active',
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false,
   },
   hobbies: [
     {
@@ -61,10 +69,10 @@ const userSchema = new Schema<user>({
     type: userAddressSchema,
     required: true,
   },
+
   orders: [
     {
       type: userOrdersSchema,
-      required: true,
     },
   ],
 });
@@ -78,6 +86,10 @@ userSchema.pre('save', async function (next) {
 });
 userSchema.post('save', function (doc, next) {
   doc.password = '';
+  next();
+});
+userSchema.pre('findOne', async function (next) {
+  this.findOne({ isDeleted: false });
   next();
 });
 
